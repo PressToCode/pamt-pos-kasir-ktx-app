@@ -1,5 +1,6 @@
 package com.example.pos_kasir_app.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.pos_kasir_app.viewmodel.UserProfile
 
 // Define Brand Colors
 val DarkBackground = Color(0xFF13141A)
@@ -32,11 +35,20 @@ val GrayButton = Color(0xFF5B5B5B)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun CashierPreview() {
-    CashierScreen()
+    CashierScreen(
+        userProfile = remember {
+            UserProfile(
+                fullName = "Test",
+                email = "Test@Test.Test",
+                phone = "1234"
+            )
+        },
+        onLogoutClick = { }
+    )
 }
 
 @Composable
-fun CashierScreen() {
+fun CashierScreen(userProfile: UserProfile, onLogoutClick: () -> Unit) {
     Scaffold(
         bottomBar = { CustomBottomNavigation() },
         containerColor = LightGrayBg
@@ -48,7 +60,7 @@ fun CashierScreen() {
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            TopSection()
+            TopSection(userProfile)
             Spacer(modifier = Modifier.height(16.dp))
             MyCashierSection()
             Spacer(modifier = Modifier.height(16.dp))
@@ -61,7 +73,7 @@ fun CashierScreen() {
 }
 
 @Composable
-fun TopSection() {
+fun TopSection(userProfile: UserProfile) {
     Surface(
         color = DarkBackground,
         shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
@@ -126,7 +138,7 @@ fun TopSection() {
                 Column {
                     Text(text = "Good Evening!", color = Color.LightGray, fontSize = 14.sp)
                     Text(
-                        text = "Muhammad",
+                        text = userProfile.fullName,
                         color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold
@@ -155,7 +167,7 @@ fun TopSection() {
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = { /* Navigate to account or profile */ },
                     colors = ButtonDefaults.buttonColors(containerColor = GrayButton),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
@@ -325,7 +337,7 @@ fun CustomBottomNavigation() {
             Surface(
                 shape = CircleShape,
                 color = Color.Transparent,
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color.Black),
+                border = BorderStroke(1.dp, Color.Black),
                 modifier = Modifier.size(56.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {

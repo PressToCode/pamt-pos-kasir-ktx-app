@@ -7,16 +7,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import io.github.jan.supabase.auth.status.SessionStatus
+import kotlinx.serialization.json.jsonPrimitive
 
+data class UserProfile(
+    val fullName: String,
+    val email: String,
+    val phone: String
+)
 class AuthViewModel : ViewModel() {
     private val repository = AuthRepository()
 
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
+    val uiState: StateFlow<AuthUiState> = _uiState
 
     private val _authCheckState = MutableStateFlow<AuthCheckState>(AuthCheckState.Checking)
     val authCheckState: StateFlow<AuthCheckState> = _authCheckState
-
-    val uiState: StateFlow<AuthUiState> = _uiState
 
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
@@ -30,6 +35,10 @@ class AuthViewModel : ViewModel() {
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password
 
+    // For User Profile
+    private val _currentUser = MutableStateFlow<UserProfile?>(null)
+    val currentUser: StateFlow<UserProfile?> = _currentUser
+
     init {
         observeAuthStatus()
     }
@@ -38,12 +47,29 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             repository.sessionStatus.collect {
                 status -> _authCheckState.value = when (status) {
-                    is SessionStatus.Authenticated -> AuthCheckState.Authenticated
-                    is SessionStatus.NotAuthenticated -> AuthCheckState.NotAuthenticated
+                    is SessionStatus.Authenticated -> {
+                        val user = status.session.user
+                        val metadata = user?.userMetadata
+
+                        _currentUser.value = UserProfile(
+                            email = user?.email ?: "",
+                            fullName = metadata?.get("full_name")?.jsonPrimitive?.content ?: "",
+                            phone = metadata?.get("phone")?.jsonPrimitive?.content ?: ""
+                        )
+
+                        AuthCheckState.Authenticated
+                    }
+                    is SessionStatus.NotAuthenticated -> {
+                        _currentUser.value = null
+                        AuthCheckState.NotAuthenticated
+                    }
                     is SessionStatus.Initializing -> AuthCheckState.Checking
                     is SessionStatus.RefreshFailure -> {
                         if (repository.isLoggedIn()) AuthCheckState.Authenticated
-                        else AuthCheckState.NotAuthenticated
+                        else {
+                            _currentUser.value = null
+                            AuthCheckState.NotAuthenticated
+                        }
                     }
                 }
             }
@@ -109,12 +135,17 @@ class AuthViewModel : ViewModel() {
     fun logout() {
         viewModelScope.launch {
             repository.logout()
+            _currentUser.value = null
 
             _uiState.value = AuthUiState.Idle
         }
     }
 
     fun resetState() {
+        _email.value = ""
+        _password.value = ""
+        _fullName.value = ""
+        _phone.value = ""
         _uiState.value = AuthUiState.Idle
     }
 }

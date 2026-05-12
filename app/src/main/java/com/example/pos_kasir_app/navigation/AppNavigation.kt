@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.example.pos_kasir_app.ui.CashierScreen
 import com.example.pos_kasir_app.ui.DashboardScreen
 import com.example.pos_kasir_app.ui.LoginScreen
 import com.example.pos_kasir_app.ui.RegisterScreen
@@ -43,7 +44,7 @@ fun AppNavigation(
         is AuthCheckState.Authenticated -> {
             MainNavigation(
                 authViewModel = authViewModel,
-                startDestination = Screen.Dashboard
+                startDestination = Screen.NewDashboard
             )
         }
 
@@ -63,7 +64,7 @@ fun MainNavigation(
 ) {
     val navigationState = rememberNavigationState(
         startRoute = startDestination,
-        topLevelRoutes = setOf(Screen.Login, Screen.Dashboard)
+        topLevelRoutes = setOf(Screen.Login, Screen.NewDashboard)
     )
 
     val navigator = remember { Navigator(navigationState) }
@@ -73,10 +74,11 @@ fun MainNavigation(
     val phone = authViewModel.phone.collectAsStateWithLifecycle()
     val password = authViewModel.password.collectAsStateWithLifecycle()
     val uiState = authViewModel.uiState.collectAsStateWithLifecycle()
+    val currentUser = authViewModel.currentUser.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.value) {
         if (uiState.value is AuthUiState.Success) {
-            navigator.navigate(Screen.Dashboard)
+            navigator.navigate(Screen.NewDashboard)
             authViewModel.resetState()
         }
     }
@@ -125,6 +127,25 @@ fun MainNavigation(
                     navigator.navigate(Screen.Login)
                 }
             )
+        }
+
+        entry<Screen.NewDashboard> { _ ->
+            currentUser.value?.let { profile ->
+                CashierScreen(
+                    userProfile = profile,
+                    onLogoutClick = {
+                        authViewModel.logout()
+                        navigator.navigate(Screen.Login)
+                    }
+                )
+            } ?: run {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 
