@@ -1,5 +1,6 @@
 package com.example.pos_kasir_app.ui
 
+import com.example.pos_kasir_app.viewmodel.UserProfile
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -23,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.pos_kasir_app.viewmodel.UserProfile
 
 // Define Brand Colors
 val DarkBackground = Color(0xFF13141A)
@@ -43,12 +44,13 @@ fun CashierPreview() {
                 phone = "1234"
             )
         },
-        onLogoutClick = { }
+        onLogoutClick = { },
+        greetingMessage = "Good Night!"
     )
 }
 
 @Composable
-fun CashierScreen(userProfile: UserProfile, onLogoutClick: () -> Unit) {
+fun CashierScreen(userProfile: UserProfile, onLogoutClick: () -> Unit, greetingMessage: String) {
     Scaffold(
         bottomBar = { CustomBottomNavigation() },
         containerColor = LightGrayBg
@@ -60,20 +62,18 @@ fun CashierScreen(userProfile: UserProfile, onLogoutClick: () -> Unit) {
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            TopSection(userProfile)
+            TopSection(userProfile, greetingMessage)
             Spacer(modifier = Modifier.height(16.dp))
             MyCashierSection()
             Spacer(modifier = Modifier.height(16.dp))
-            TopPicksSection()
-            Spacer(modifier = Modifier.height(16.dp))
-            MoreIndicator()
-            Spacer(modifier = Modifier.height(24.dp))
+//            TopPicksSection()
+//            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-fun TopSection(userProfile: UserProfile) {
+fun TopSection(userProfile: UserProfile, greetingMessage: String) {
     Surface(
         color = DarkBackground,
         shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
@@ -136,7 +136,7 @@ fun TopSection(userProfile: UserProfile) {
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
-                    Text(text = "Good Evening!", color = Color.LightGray, fontSize = 14.sp)
+                    Text(text = greetingMessage, color = Color.LightGray, fontSize = 14.sp)
                     Text(
                         text = userProfile.fullName,
                         color = Color.White,
@@ -161,9 +161,9 @@ fun TopSection(userProfile: UserProfile) {
                         .weight(1f)
                         .height(48.dp)
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null, tint = Color.White)
+                    Icon(imageVector = Icons.Default.AttachMoney, contentDescription = null, tint = Color.White)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Add Money", color = Color.White)
+                    Text("Transaction", color = Color.White)
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
@@ -174,9 +174,9 @@ fun TopSection(userProfile: UserProfile) {
                         .weight(1f)
                         .height(48.dp)
                 ) {
-                    Icon(imageVector = Icons.Outlined.ChatBubbleOutline, contentDescription = null, tint = Color.White)
+                    Icon(imageVector = Icons.Outlined.PeopleAlt, contentDescription = null, tint = Color.White)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("My account", color = Color.White)
+                    Text("My Profile", color = Color.White)
                 }
             }
         }
@@ -197,19 +197,21 @@ fun MyCashierSection() {
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
-            Surface(
-                color = Color(0xFFE0E0E0),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(14.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Edit", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                }
-            }
+
+            // Edit Button
+//            Surface(
+//                color = Color(0xFFE0E0E0),
+//                shape = RoundedCornerShape(12.dp)
+//            ) {
+//                Row(
+//                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    Icon(imageVector = Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(14.dp))
+//                    Spacer(modifier = Modifier.width(4.dp))
+//                    Text(text = "Edit", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+//                }
+//            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -218,10 +220,10 @@ fun MyCashierSection() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            GridItem(icon = Icons.Outlined.Send, title = "Money\nTransfer", weight = 1f)
-            GridItem(icon = Icons.Outlined.Receipt, title = "Utility\nBills", weight = 1f)
-            GridItem(icon = Icons.Outlined.PhoneAndroid, title = "Mobile Load\n& Packages", weight = 1f)
-            GridItem(icon = Icons.Outlined.AccountBalance, title = "Banking &\nFinance", weight = 1f)
+            GridItem(icon = Icons.AutoMirrored.Outlined.Send, title = "Money\nTransfer")
+            GridItem(icon = Icons.Outlined.Receipt, title = "Kas")
+            GridItem(icon = Icons.Outlined.Inventory2, title = "Inventory")
+            GridItem(icon = Icons.Outlined.History, title = "Transaction\nHistory")
         }
     }
 }
@@ -242,16 +244,16 @@ fun TopPicksSection() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            GridItem(icon = Icons.Outlined.Person, title = "Debit Card", badge = "New", weight = 1f)
-            GridItem(icon = Icons.Outlined.Inventory2, title = "Mobile\nPackages", weight = 1f)
-            GridItem(icon = Icons.Outlined.HealthAndSafety, title = "Insurance", weight = 1f)
+            GridItem(icon = Icons.Outlined.Person, title = "Debit Card", badge = "New")
+            GridItem(icon = Icons.Outlined.Inventory2, title = "Mobile\nPackages")
+            GridItem(icon = Icons.Outlined.HealthAndSafety, title = "Insurance")
             Spacer(modifier = Modifier.weight(1f)) // Empty spacer to maintain sizing
         }
     }
 }
 
 @Composable
-fun GridItem(icon: ImageVector, title: String, weight: Float, badge: String? = null) {
+fun GridItem(icon: ImageVector, title: String, badge: String? = null) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -298,21 +300,6 @@ fun GridItem(icon: ImageVector, title: String, weight: Float, badge: String? = n
             color = Color.DarkGray,
             lineHeight = 14.sp
         )
-    }
-}
-
-@Composable
-fun MoreIndicator() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFFE5E5E5)),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "More", tint = Color.Gray)
-            Text("More", fontSize = 10.sp, color = Color.Gray, modifier = Modifier.offset(y = (-4).dp))
-        }
     }
 }
 

@@ -20,6 +20,7 @@ import com.example.pos_kasir_app.ui.RegisterScreen
 import com.example.pos_kasir_app.viewmodel.AuthCheckState
 import com.example.pos_kasir_app.viewmodel.AuthUiState
 import com.example.pos_kasir_app.viewmodel.AuthViewModel
+import com.example.pos_kasir_app.viewmodel.DashboardViewModel
 
 @Composable
 fun AppNavigation(
@@ -131,8 +132,11 @@ fun MainNavigation(
 
         entry<Screen.NewDashboard> { _ ->
             currentUser.value?.let { profile ->
+                val dashboardViewModel: DashboardViewModel  = viewModel()
+
                 CashierScreen(
                     userProfile = profile,
+                    greetingMessage = dashboardViewModel.greetingState.value,
                     onLogoutClick = {
                         authViewModel.logout()
                         navigator.navigate(Screen.Login)
