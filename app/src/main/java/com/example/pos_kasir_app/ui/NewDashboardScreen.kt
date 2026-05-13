@@ -69,13 +69,13 @@ fun NewDashboardScreen(
 ) {
     Scaffold(
         bottomBar = { CustomBottomNavigation() },
-        containerColor = LightGrayBg
+        containerColor = LightGrayBg,
+        modifier = Modifier.safeDrawingPadding()
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = paddingValues.calculateBottomPadding())
-                .safeDrawingPadding()
                 .verticalScroll(rememberScrollState())
         ) {
             TopSection(
@@ -281,7 +281,8 @@ fun CustomBottomNavigation() {
     Surface(
         color = Color.White,
         shadowElevation = 8.dp,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        modifier = Modifier.navigationBarsPadding()
     ) {
         Row(
             modifier = Modifier
