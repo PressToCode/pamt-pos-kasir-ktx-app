@@ -9,6 +9,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
+import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -24,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.pos_kasir_app.repository.Motd
 import com.example.pos_kasir_app.viewmodel.UserProfile
 
 
@@ -46,7 +50,10 @@ fun NewDashboardPreview() {
             )
         },
         onLogoutClick = { },
-        greetingMessage = "Good Night!",
+        motdGreeting = Motd(
+            greetingMessage = "Good Morning!",
+            icon = Icons.Outlined.WbSunny
+        ),
         role = "Kasir"
     )
 }
@@ -55,7 +62,7 @@ fun NewDashboardPreview() {
 fun NewDashboardScreen(
     userProfile: UserProfile,
     onLogoutClick: () -> Unit,
-    greetingMessage: String,
+    motdGreeting: Motd,
     role: String
 ) {
     Scaffold(
@@ -69,8 +76,14 @@ fun NewDashboardScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            TopSection(userProfile, greetingMessage, role)
+            TopSection(
+                userProfile = userProfile,
+                motdGreeting = motdGreeting,
+                role = role,
+                onLogoutClick = onLogoutClick
+            )
             Spacer(modifier = Modifier.height(16.dp))
+
             DashboardMenu(role)
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -78,7 +91,7 @@ fun NewDashboardScreen(
 }
 
 @Composable
-fun TopSection(userProfile: UserProfile, greetingMessage: String, role: String) {
+fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLogoutClick: () -> Unit) {
     Surface(
         color = DarkBackground,
         shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
@@ -101,18 +114,13 @@ fun TopSection(userProfile: UserProfile, greetingMessage: String, role: String) 
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp
                 )
-                Row {
-                    Icon(
-                        imageVector = Icons.Outlined.HelpOutline,
-                        contentDescription = "Help",
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     Box {
                         Icon(
-                            imageVector = Icons.Outlined.MoreHoriz,
-                            contentDescription = "Menu",
+                            imageVector = Icons.AutoMirrored.Outlined.Message,
+                            contentDescription = "Notification",
                             tint = Color.White,
                             modifier = Modifier.size(28.dp)
                         )
@@ -125,23 +133,32 @@ fun TopSection(userProfile: UserProfile, greetingMessage: String, role: String) 
                                 .align(Alignment.TopEnd)
                         )
                     }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.Logout,
+                        contentDescription = "Logout",
+                        tint = Color.Red,
+                        modifier = Modifier.size(28.dp).clickable(onClick = onLogoutClick)
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             // Profile Section
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Placeholder for profile picture
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Icon to represent
+                Icon(
+                    imageVector = motdGreeting.icon,
+                    contentDescription = motdGreeting.greetingMessage,
+                    tint = Color.White,
+                    modifier = Modifier.size(48.dp)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
+
                 Column {
-                    Text(text = greetingMessage, color = Color.LightGray, fontSize = 14.sp)
+                    Text(text = motdGreeting.greetingMessage, color = Color.LightGray, fontSize = 14.sp)
                     Text(
                         text = userProfile.fullName,
                         color = Color.White,
@@ -225,10 +242,9 @@ fun DashboardMenu(role: String) {
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ListTileItem(icon = Icons.AutoMirrored.Outlined.Send, title = "Money Transfer", badge = "NEW")
             ListTileItem(icon = Icons.Outlined.Receipt, title = "Kas")
             ListTileItem(icon = Icons.Outlined.Inventory2, title = "Inventory")
-            ListTileItem(icon = Icons.Outlined.History, title = "Transaction History")
+            ListTileItem(icon = Icons.Outlined.History, title = "Transaction History", badge = "NEW")
         }
     }
 }
