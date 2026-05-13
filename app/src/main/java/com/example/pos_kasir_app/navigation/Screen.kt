@@ -14,4 +14,10 @@ sealed class Screen : NavKey {
 
     @Serializable
     data object NewDashboard : Screen()
+
+    @Serializable
+    data object Kas : Screen()
+
+    @Serializable
+    data object Profile : Screen()
 }

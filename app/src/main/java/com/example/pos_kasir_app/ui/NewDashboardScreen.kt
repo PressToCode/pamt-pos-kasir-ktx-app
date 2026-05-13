@@ -54,7 +54,9 @@ fun NewDashboardPreview() {
             greetingMessage = "Good Morning!",
             icon = Icons.Outlined.WbSunny
         ),
-        role = "Kasir"
+        role = "Kasir",
+        onKasClick = {},
+        onProfileClick = {}
     )
 }
 
@@ -63,35 +65,38 @@ fun NewDashboardScreen(
     userProfile: UserProfile,
     onLogoutClick: () -> Unit,
     motdGreeting: Motd,
-    role: String
+    role: String,
+    onKasClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     Scaffold(
         bottomBar = { CustomBottomNavigation() },
-        containerColor = LightGrayBg
+        containerColor = LightGrayBg,
+        modifier = Modifier.safeDrawingPadding()
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .safeDrawingPadding()
-                .padding(paddingValues)
+                .padding(bottom = paddingValues.calculateBottomPadding())
                 .verticalScroll(rememberScrollState())
         ) {
             TopSection(
                 userProfile = userProfile,
                 motdGreeting = motdGreeting,
                 role = role,
-                onLogoutClick = onLogoutClick
+                onLogoutClick = onLogoutClick,
+                onProfileClick = onProfileClick
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            DashboardMenu(role)
+            DashboardMenu(role = role, onKasClick = onKasClick)
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLogoutClick: () -> Unit) {
+fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLogoutClick: () -> Unit, onProfileClick: () -> Unit) {
     Surface(
         color = DarkBackground,
         shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
@@ -189,7 +194,7 @@ fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLog
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
-                    onClick = { /* Navigate to account or profile */ },
+                    onClick = onProfileClick,
                     colors = ButtonDefaults.buttonColors(containerColor = GrayButton),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
@@ -206,7 +211,7 @@ fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLog
 }
 
 @Composable
-fun DashboardMenu(role: String) {
+fun DashboardMenu(role: String, onKasClick: () -> Unit) {
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -242,14 +247,14 @@ fun DashboardMenu(role: String) {
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ListTileItem(icon = Icons.Outlined.Receipt, title = "Kas")
+            ListTileItem(icon = Icons.Outlined.Receipt, title = "Kas", onClick = onKasClick)
             ListTileItem(icon = Icons.Outlined.Inventory2, title = "Inventory")
             ListTileItem(icon = Icons.Outlined.History, title = "Transaction History", badge = "NEW")
         }
     }
 }
 @Composable
-fun ListTileItem(icon: ImageVector, title: String, badge: String? = null) {
+fun ListTileItem(icon: ImageVector, title: String, badge: String? = null, onClick: () -> Unit = {}) {
     ListItem(
         headlineContent = { Text(title) },
         supportingContent = { Text("Subtitle") },
@@ -270,7 +275,7 @@ fun ListTileItem(icon: ImageVector, title: String, badge: String? = null) {
                 }
             }
         },
-        modifier = Modifier.clickable(onClick = {})
+        modifier = Modifier.clickable(onClick = onClick)
     )
 }
 
@@ -279,7 +284,8 @@ fun CustomBottomNavigation() {
     Surface(
         color = Color.White,
         shadowElevation = 8.dp,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        modifier = Modifier.navigationBarsPadding()
     ) {
         Row(
             modifier = Modifier

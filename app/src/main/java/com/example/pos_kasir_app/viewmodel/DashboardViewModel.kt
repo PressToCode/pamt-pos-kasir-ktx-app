@@ -44,11 +44,7 @@ class DashboardViewModel : ViewModel() {
     }
 
     suspend fun loadRole() {
-        try {
-            val role = dashboardRepository.getRole()
-            _roleState.value = role
-        } catch (e: Exception) {
-            _uiState.value = DashboardUiState.Error(e.message ?: "An unknown error occurred")
-        }
+        val role = dashboardRepository.getRole()
+        _roleState.value = role
     }
 }
