@@ -29,7 +29,10 @@ class DashboardViewModel : ViewModel() {
     fun loadRole() {
         viewModelScope.launch {
             val role = dashboardRepository.getRole()
-            _roleState.value = role
+
+            if (role != null) {
+                _roleState.value = role
+            }
         }
     }
 }

@@ -21,9 +21,14 @@ class DashboardRepository {
         }
     }
 
-    suspend fun getRole(): String {
-        return supabase.postgrest.from("profiles")
-            .select { filter { eq("id", supabase.auth.currentUserOrNull()?.id ?: "") } }
-            .decodeSingle<Map<String, String>>()["role"] ?: "User"
+    suspend fun getRole(): String? {
+        try {
+            return supabase.postgrest.from("user")
+                .select { filter { eq("id", supabase.auth.currentUserOrNull()?.id ?: "") } }
+                .decodeSingle<Map<String, String>>()["role"] ?: "User"
+        } catch (e: Exception) {
+            print(e)
+            return null
+        }
     }
 }
