@@ -70,7 +70,7 @@ fun NewDashboardScreen(
     onProfileClick: () -> Unit
 ) {
     Scaffold(
-        bottomBar = { CustomBottomNavigation() },
+//        bottomBar = { CustomBottomNavigation() },
         containerColor = LightGrayBg,
         modifier = Modifier.safeDrawingPadding()
     ) { paddingValues ->
@@ -182,7 +182,7 @@ fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLog
             ) {
                 Button(
                     onClick = { /*TODO*/ },
-                    colors = ButtonDefaults.buttonColors(containerColor = BlueButton),
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkBackground),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .weight(1f)

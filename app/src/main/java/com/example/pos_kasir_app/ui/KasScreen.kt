@@ -32,11 +32,11 @@ import com.example.pos_kasir_app.viewmodel.KasViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
-// Local accent colors
-private val GreenActive = Color(0xFF4CAF50)
-private val RedInactive = Color(0xFFFF5252)
+// Local colors (aligned to black + orange design system)
 private val SubtleGray = Color(0xFF9E9E9E)
 private val SoftWhite = Color(0xFFF8F9FB)
+private val MutedDark = Color(0xFF3A3A3A)
+private val OrangeLight = Color(0xFFFF8A65)
 
 @Composable
 fun KasScreen(
@@ -95,7 +95,7 @@ fun KasScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier.padding(32.dp)
                             ) {
-                                Icon(Icons.Outlined.ErrorOutline, null, tint = RedInactive, modifier = Modifier.size(48.dp))
+                                Icon(Icons.Outlined.ErrorOutline, null, tint = OrangeBrand, modifier = Modifier.size(48.dp))
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text("Gagal Memuat Data", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -172,8 +172,8 @@ fun KasScreen(
                 onDismissRequest = { showDeleteConfirmDialog = null },
                 shape = RoundedCornerShape(20.dp),
                 icon = {
-                    Surface(color = RedInactive.copy(alpha = 0.1f), shape = CircleShape) {
-                        Icon(Icons.Outlined.DeleteForever, null, tint = RedInactive,
+                    Surface(color = OrangeBrand.copy(alpha = 0.1f), shape = CircleShape) {
+                        Icon(Icons.Outlined.DeleteForever, null, tint = OrangeBrand,
                             modifier = Modifier.padding(12.dp).size(28.dp))
                     }
                 },
@@ -190,7 +190,7 @@ fun KasScreen(
                             kasToDelete.kasId?.let { viewModel.deleteKas(it) }
                             showDeleteConfirmDialog = null
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = RedInactive),
+                        colors = ButtonDefaults.buttonColors(containerColor = DarkBackground),
                         shape = RoundedCornerShape(12.dp)
                     ) { Text("Hapus") }
                 },
@@ -260,9 +260,9 @@ private fun KasHeader(onBackClick: () -> Unit, kasList: List<Kas>?) {
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            KasStatChip(label = "Total", value = "$totalKas", color = BlueButton)
-                            KasStatChip(label = "Aktif", value = "$activeKas", color = GreenActive)
-                            KasStatChip(label = "Nonaktif", value = "${totalKas - activeKas}", color = RedInactive)
+                            KasStatChip(label = "Total", value = "$totalKas", color = Color.White)
+                            KasStatChip(label = "Aktif", value = "$activeKas", color = OrangeBrand)
+                            KasStatChip(label = "Nonaktif", value = "${totalKas - activeKas}", color = OrangeLight)
                         }
                     }
                 }
@@ -297,13 +297,13 @@ private fun KasCard(kas: Kas, onEditClick: () -> Unit, onDeleteClick: () -> Unit
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 // Icon box
                 Surface(
-                    color = if (kas.isActive) OrangeBrand.copy(alpha = 0.1f) else Color(0xFFF5F5F5),
+                    color = if (kas.isActive) OrangeBrand.copy(alpha = 0.12f) else DarkBackground.copy(alpha = 0.06f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.AccountBalanceWallet,
                         contentDescription = null,
-                        tint = if (kas.isActive) OrangeBrand else SubtleGray,
+                        tint = if (kas.isActive) OrangeBrand else MutedDark,
                         modifier = Modifier.padding(10.dp).size(24.dp)
                     )
                 }
@@ -315,15 +315,15 @@ private fun KasCard(kas: Kas, onEditClick: () -> Unit, onDeleteClick: () -> Unit
                     Text(
                         text = kas.namaKas,
                         fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
-                        color = if (kas.isActive) Color(0xFF1A1A2E) else SubtleGray
+                        color = if (kas.isActive) DarkBackground else SubtleGray
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Box(modifier = Modifier.size(6.dp).clip(CircleShape)
-                            .background(if (kas.isActive) GreenActive else RedInactive))
+                            .background(if (kas.isActive) OrangeBrand else SubtleGray))
                         Text(
                             text = if (kas.isActive) "Aktif" else "Nonaktif",
-                            fontSize = 12.sp, color = if (kas.isActive) GreenActive else RedInactive,
+                            fontSize = 12.sp, color = if (kas.isActive) OrangeBrand else SubtleGray,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -331,10 +331,10 @@ private fun KasCard(kas: Kas, onEditClick: () -> Unit, onDeleteClick: () -> Unit
 
                 // Action buttons
                 IconButton(onClick = onEditClick, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Filled.Edit, "Edit", tint = BlueButton, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Filled.Edit, "Edit", tint = OrangeBrand, modifier = Modifier.size(18.dp))
                 }
                 IconButton(onClick = onDeleteClick, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Filled.Delete, "Hapus", tint = RedInactive, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Filled.Delete, "Hapus", tint = MutedDark, modifier = Modifier.size(18.dp))
                 }
             }
 
@@ -450,13 +450,13 @@ private fun KasFormDialog(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Outlined.ToggleOn, null, tint = if (isActive) GreenActive else SubtleGray, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Outlined.ToggleOn, null, tint = if (isActive) OrangeBrand else SubtleGray, modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(10.dp))
                         Text("Status Aktif", modifier = Modifier.weight(1f), fontSize = 14.sp, color = Color(0xFF444444))
                         Switch(
                             checked = isActive, onCheckedChange = { isActive = it },
                             colors = SwitchDefaults.colors(
-                                checkedThumbColor = Color.White, checkedTrackColor = GreenActive,
+                                checkedThumbColor = Color.White, checkedTrackColor = OrangeBrand,
                                 uncheckedThumbColor = Color.White, uncheckedTrackColor = Color(0xFFE0E0E0)
                             )
                         )
