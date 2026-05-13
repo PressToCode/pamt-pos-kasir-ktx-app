@@ -54,7 +54,8 @@ fun NewDashboardPreview() {
             greetingMessage = "Good Morning!",
             icon = Icons.Outlined.WbSunny
         ),
-        role = "Kasir"
+        role = "Kasir",
+        onKasClick = {}
     )
 }
 
@@ -63,7 +64,8 @@ fun NewDashboardScreen(
     userProfile: UserProfile,
     onLogoutClick: () -> Unit,
     motdGreeting: Motd,
-    role: String
+    role: String,
+    onKasClick: () -> Unit
 ) {
     Scaffold(
         bottomBar = { CustomBottomNavigation() },
@@ -72,8 +74,8 @@ fun NewDashboardScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(bottom = paddingValues.calculateBottomPadding())
                 .safeDrawingPadding()
-                .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
             TopSection(
@@ -84,7 +86,7 @@ fun NewDashboardScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            DashboardMenu(role)
+            DashboardMenu(role = role, onKasClick = onKasClick)
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -206,7 +208,7 @@ fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLog
 }
 
 @Composable
-fun DashboardMenu(role: String) {
+fun DashboardMenu(role: String, onKasClick: () -> Unit) {
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -242,14 +244,14 @@ fun DashboardMenu(role: String) {
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ListTileItem(icon = Icons.Outlined.Receipt, title = "Kas")
+            ListTileItem(icon = Icons.Outlined.Receipt, title = "Kas", onClick = onKasClick)
             ListTileItem(icon = Icons.Outlined.Inventory2, title = "Inventory")
             ListTileItem(icon = Icons.Outlined.History, title = "Transaction History", badge = "NEW")
         }
     }
 }
 @Composable
-fun ListTileItem(icon: ImageVector, title: String, badge: String? = null) {
+fun ListTileItem(icon: ImageVector, title: String, badge: String? = null, onClick: () -> Unit = {}) {
     ListItem(
         headlineContent = { Text(title) },
         supportingContent = { Text("Subtitle") },
@@ -270,7 +272,7 @@ fun ListTileItem(icon: ImageVector, title: String, badge: String? = null) {
                 }
             }
         },
-        modifier = Modifier.clickable(onClick = {})
+        modifier = Modifier.clickable(onClick = onClick)
     )
 }
 

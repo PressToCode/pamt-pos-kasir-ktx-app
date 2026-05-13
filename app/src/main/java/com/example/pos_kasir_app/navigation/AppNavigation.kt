@@ -23,6 +23,7 @@ import com.example.pos_kasir_app.viewmodel.AuthUiState
 import com.example.pos_kasir_app.viewmodel.AuthViewModel
 import com.example.pos_kasir_app.viewmodel.DashboardUiState
 import com.example.pos_kasir_app.viewmodel.DashboardViewModel
+import com.example.pos_kasir_app.ui.KasScreen
 
 @Composable
 fun AppNavigation(
@@ -147,6 +148,9 @@ fun MainNavigation(
                                 onLogoutClick = {
                                     authViewModel.logout()
                                     navigator.navigate(Screen.Login)
+                                },
+                                onKasClick = {
+                                    navigator.navigate(Screen.Kas)
                                 }
                             )
                         }
@@ -174,6 +178,14 @@ fun MainNavigation(
                     CircularProgressIndicator()
                 }
             }
+        }
+
+        entry<Screen.Kas> { _ ->
+            KasScreen(
+                onNavigateBack = {
+                    navigator.goBack()
+                }
+            )
         }
     }
 
