@@ -24,6 +24,7 @@ import com.example.pos_kasir_app.viewmodel.AuthViewModel
 import com.example.pos_kasir_app.viewmodel.DashboardUiState
 import com.example.pos_kasir_app.viewmodel.DashboardViewModel
 import com.example.pos_kasir_app.ui.KasScreen
+import com.example.pos_kasir_app.ui.ProfileScreen
 
 @Composable
 fun AppNavigation(
@@ -151,6 +152,9 @@ fun MainNavigation(
                                 },
                                 onKasClick = {
                                     navigator.navigate(Screen.Kas)
+                                },
+                                onProfileClick = {
+                                    navigator.navigate(Screen.Profile)
                                 }
                             )
                         }
@@ -182,6 +186,14 @@ fun MainNavigation(
 
         entry<Screen.Kas> { _ ->
             KasScreen(
+                onNavigateBack = {
+                    navigator.goBack()
+                }
+            )
+        }
+
+        entry<Screen.Profile> { _ ->
+            ProfileScreen(
                 onNavigateBack = {
                     navigator.goBack()
                 }
