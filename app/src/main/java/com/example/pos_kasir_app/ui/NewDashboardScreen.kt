@@ -55,7 +55,8 @@ fun NewDashboardPreview() {
             icon = Icons.Outlined.WbSunny
         ),
         role = "Kasir",
-        onKasClick = {}
+        onKasClick = {},
+        onProfileClick = {}
     )
 }
 
@@ -65,7 +66,8 @@ fun NewDashboardScreen(
     onLogoutClick: () -> Unit,
     motdGreeting: Motd,
     role: String,
-    onKasClick: () -> Unit
+    onKasClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     Scaffold(
         bottomBar = { CustomBottomNavigation() },
@@ -82,7 +84,8 @@ fun NewDashboardScreen(
                 userProfile = userProfile,
                 motdGreeting = motdGreeting,
                 role = role,
-                onLogoutClick = onLogoutClick
+                onLogoutClick = onLogoutClick,
+                onProfileClick = onProfileClick
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -93,7 +96,7 @@ fun NewDashboardScreen(
 }
 
 @Composable
-fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLogoutClick: () -> Unit) {
+fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLogoutClick: () -> Unit, onProfileClick: () -> Unit) {
     Surface(
         color = DarkBackground,
         shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
@@ -191,7 +194,7 @@ fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLog
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
-                    onClick = { /* Navigate to account or profile */ },
+                    onClick = onProfileClick,
                     colors = ButtonDefaults.buttonColors(containerColor = GrayButton),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier

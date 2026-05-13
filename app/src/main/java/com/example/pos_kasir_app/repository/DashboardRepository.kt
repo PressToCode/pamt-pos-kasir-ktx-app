@@ -34,10 +34,10 @@ class DashboardRepository {
     }
 
     suspend fun getRole(): String {
+
         // Ensure auth is initialized to retrieve the session and user
         supabase.auth.awaitInitialization()
         val userId = supabase.auth.currentUserOrNull()?.id ?: return "GUEST"
-        Log.d("DashboardRepository", "Fetching role for userId: $userId")
 
         return try {
             val result = supabase.postgrest.from("user")
@@ -46,8 +46,9 @@ class DashboardRepository {
             
             result?.get("role")?.toString()?.replace("\"", "") ?: "GUEST"
         } catch (e: Exception) {
-            Log.e("DashboardRepository", "Error fetching role", e)
+            
             "GUEST"
+
         }
     }
 }
