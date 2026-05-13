@@ -11,4 +11,7 @@ sealed class Screen : NavKey {
     data object Register : Screen()
     @Serializable
     data object Dashboard : Screen()
+
+    @Serializable
+    data object NewDashboard : Screen()
 }

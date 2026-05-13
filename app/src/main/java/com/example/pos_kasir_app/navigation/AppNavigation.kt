@@ -3,6 +3,7 @@ package com.example.pos_kasir_app.navigation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -15,10 +16,13 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.example.pos_kasir_app.ui.DashboardScreen
 import com.example.pos_kasir_app.ui.LoginScreen
+import com.example.pos_kasir_app.ui.NewDashboardScreen
 import com.example.pos_kasir_app.ui.RegisterScreen
 import com.example.pos_kasir_app.viewmodel.AuthCheckState
 import com.example.pos_kasir_app.viewmodel.AuthUiState
 import com.example.pos_kasir_app.viewmodel.AuthViewModel
+import com.example.pos_kasir_app.viewmodel.DashboardUiState
+import com.example.pos_kasir_app.viewmodel.DashboardViewModel
 
 @Composable
 fun AppNavigation(
@@ -43,7 +47,7 @@ fun AppNavigation(
         is AuthCheckState.Authenticated -> {
             MainNavigation(
                 authViewModel = authViewModel,
-                startDestination = Screen.Dashboard
+                startDestination = Screen.NewDashboard
             )
         }
 
@@ -63,7 +67,7 @@ fun MainNavigation(
 ) {
     val navigationState = rememberNavigationState(
         startRoute = startDestination,
-        topLevelRoutes = setOf(Screen.Login, Screen.Dashboard)
+        topLevelRoutes = setOf(Screen.Login, Screen.NewDashboard)
     )
 
     val navigator = remember { Navigator(navigationState) }
@@ -73,10 +77,11 @@ fun MainNavigation(
     val phone = authViewModel.phone.collectAsStateWithLifecycle()
     val password = authViewModel.password.collectAsStateWithLifecycle()
     val uiState = authViewModel.uiState.collectAsStateWithLifecycle()
+    val currentUser = authViewModel.currentUser.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.value) {
         if (uiState.value is AuthUiState.Success) {
-            navigator.navigate(Screen.Dashboard)
+            navigator.navigate(Screen.NewDashboard)
             authViewModel.resetState()
         }
     }
@@ -125,6 +130,50 @@ fun MainNavigation(
                     navigator.navigate(Screen.Login)
                 }
             )
+        }
+
+        entry<Screen.NewDashboard> { _ ->
+            currentUser.value?.let { profile ->
+                val dashboardViewModel: DashboardViewModel  = viewModel()
+                val dashboardUiState = dashboardViewModel.uiState.collectAsStateWithLifecycle()
+
+                when (dashboardUiState.value) {
+                    is DashboardUiState.Success -> {
+                        dashboardViewModel.greetingState.value?.let { motdGreeting ->
+                            NewDashboardScreen(
+                                userProfile = profile,
+                                motdGreeting = motdGreeting,
+                                role = dashboardViewModel.roleState.value,
+                                onLogoutClick = {
+                                    authViewModel.logout()
+                                    navigator.navigate(Screen.Login)
+                                }
+                            )
+                        }
+                    }
+                    is DashboardUiState.Error -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            val message = (dashboardUiState.value as DashboardUiState.Error).message
+                            Text(text = message)
+                        }
+                    }
+                    else -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                }
+            } ?: run {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 

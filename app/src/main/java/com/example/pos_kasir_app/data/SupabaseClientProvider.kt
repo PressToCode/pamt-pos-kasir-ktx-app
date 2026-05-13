@@ -3,6 +3,7 @@ package com.example.pos_kasir_app.data
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.realtime.Realtime
 
 object SupabaseClientProvider {
     val supabaseClient = createSupabaseClient(
@@ -11,5 +12,6 @@ object SupabaseClientProvider {
     ) {
         install(Postgrest)
         install(Auth)
+        install(Realtime)
     }
 }
