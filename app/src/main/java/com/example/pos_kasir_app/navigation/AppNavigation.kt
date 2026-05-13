@@ -13,9 +13,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
-import com.example.pos_kasir_app.ui.CashierScreen
 import com.example.pos_kasir_app.ui.DashboardScreen
 import com.example.pos_kasir_app.ui.LoginScreen
+import com.example.pos_kasir_app.ui.NewDashboardScreen
 import com.example.pos_kasir_app.ui.RegisterScreen
 import com.example.pos_kasir_app.viewmodel.AuthCheckState
 import com.example.pos_kasir_app.viewmodel.AuthUiState
@@ -134,9 +134,10 @@ fun MainNavigation(
             currentUser.value?.let { profile ->
                 val dashboardViewModel: DashboardViewModel  = viewModel()
 
-                CashierScreen(
+                NewDashboardScreen(
                     userProfile = profile,
                     greetingMessage = dashboardViewModel.greetingState.value,
+                    role = dashboardViewModel.roleState.value,
                     onLogoutClick = {
                         authViewModel.logout()
                         navigator.navigate(Screen.Login)

@@ -1,8 +1,8 @@
 package com.example.pos_kasir_app.ui
 
-import com.example.pos_kasir_app.viewmodel.UserProfile
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -21,10 +21,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.pos_kasir_app.viewmodel.UserProfile
+
 
 // Define Brand Colors
 val DarkBackground = Color(0xFF13141A)
@@ -35,22 +36,28 @@ val GrayButton = Color(0xFF5B5B5B)
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun CashierPreview() {
-    CashierScreen(
+fun NewDashboardPreview() {
+    NewDashboardScreen(
         userProfile = remember {
             UserProfile(
-                fullName = "Test",
+                fullName = "Wedanta",
                 email = "Test@Test.Test",
                 phone = "1234"
             )
         },
         onLogoutClick = { },
-        greetingMessage = "Good Night!"
+        greetingMessage = "Good Night!",
+        role = "Kasir"
     )
 }
 
 @Composable
-fun CashierScreen(userProfile: UserProfile, onLogoutClick: () -> Unit, greetingMessage: String) {
+fun NewDashboardScreen(
+    userProfile: UserProfile,
+    onLogoutClick: () -> Unit,
+    greetingMessage: String,
+    role: String
+) {
     Scaffold(
         bottomBar = { CustomBottomNavigation() },
         containerColor = LightGrayBg
@@ -62,18 +69,16 @@ fun CashierScreen(userProfile: UserProfile, onLogoutClick: () -> Unit, greetingM
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            TopSection(userProfile, greetingMessage)
+            TopSection(userProfile, greetingMessage, role)
             Spacer(modifier = Modifier.height(16.dp))
-            MyCashierSection()
+            DashboardMenu(role)
             Spacer(modifier = Modifier.height(16.dp))
-//            TopPicksSection()
-//            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-fun TopSection(userProfile: UserProfile, greetingMessage: String) {
+fun TopSection(userProfile: UserProfile, greetingMessage: String, role: String) {
     Surface(
         color = DarkBackground,
         shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
@@ -90,7 +95,7 @@ fun TopSection(userProfile: UserProfile, greetingMessage: String) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "CASHIER",
+                    text = role.uppercase(),
                     color = Color.White,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
@@ -184,7 +189,7 @@ fun TopSection(userProfile: UserProfile, greetingMessage: String) {
 }
 
 @Composable
-fun MyCashierSection() {
+fun DashboardMenu(role: String) {
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -192,7 +197,7 @@ fun MyCashierSection() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "My Cashier",
+                text = "Menu $role",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -216,71 +221,28 @@ fun MyCashierSection() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            GridItem(icon = Icons.AutoMirrored.Outlined.Send, title = "Money\nTransfer")
-            GridItem(icon = Icons.Outlined.Receipt, title = "Kas")
-            GridItem(icon = Icons.Outlined.Inventory2, title = "Inventory")
-            GridItem(icon = Icons.Outlined.History, title = "Transaction\nHistory")
+            ListTileItem(icon = Icons.AutoMirrored.Outlined.Send, title = "Money Transfer", badge = "NEW")
+            ListTileItem(icon = Icons.Outlined.Receipt, title = "Kas")
+            ListTileItem(icon = Icons.Outlined.Inventory2, title = "Inventory")
+            ListTileItem(icon = Icons.Outlined.History, title = "Transaction History")
         }
     }
 }
-
 @Composable
-fun TopPicksSection() {
-    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-        Text(
-            text = "Top Picks for You",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            GridItem(icon = Icons.Outlined.Person, title = "Debit Card", badge = "New")
-            GridItem(icon = Icons.Outlined.Inventory2, title = "Mobile\nPackages")
-            GridItem(icon = Icons.Outlined.HealthAndSafety, title = "Insurance")
-            Spacer(modifier = Modifier.weight(1f)) // Empty spacer to maintain sizing
-        }
-    }
-}
-
-@Composable
-fun GridItem(icon: ImageVector, title: String, badge: String? = null) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box {
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = Color.White,
-                shadowElevation = 2.dp,
-                modifier = Modifier.size(72.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = title,
-                        modifier = Modifier.size(28.dp),
-                        tint = Color(0xFF2A303A)
-                    )
-                }
-            }
-
+fun ListTileItem(icon: ImageVector, title: String, badge: String? = null) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = { Text("Subtitle") },
+        leadingContent = { Icon(icon, contentDescription = null) },
+        trailingContent = {
             if (badge != null) {
                 Surface(
                     color = OrangeBrand,
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .offset(y = (-8).dp)
                 ) {
                     Text(
                         text = badge,
@@ -291,16 +253,9 @@ fun GridItem(icon: ImageVector, title: String, badge: String? = null) {
                     )
                 }
             }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = title,
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center,
-            color = Color.DarkGray,
-            lineHeight = 14.sp
-        )
-    }
+        },
+        modifier = Modifier.clickable(onClick = {})
+    )
 }
 
 @Composable
