@@ -1,5 +1,6 @@
 package com.example.pos_kasir_app.repository
 
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Nightlight
 import androidx.compose.material.icons.outlined.WbCloudy
@@ -33,13 +34,21 @@ class DashboardRepository {
     }
 
     suspend fun getRole(): String {
+
+        // Ensure auth is initialized to retrieve the session and user
+        supabase.auth.awaitInitialization()
+        val userId = supabase.auth.currentUserOrNull()?.id ?: return "GUEST"
+
         return try {
-            supabase.postgrest.from("user")
-                .select { filter { eq("user_id", supabase.auth.currentUserOrNull()?.id ?: "") } }
-                .decodeSingle<Map<String, String>>()["role"] ?: "User"
+            val result = supabase.postgrest.from("user")
+                .select { filter { eq("user_id", userId) } }
+                .decodeSingleOrNull<Map<String, kotlinx.serialization.json.JsonElement>>()
+            
+            result?.get("role")?.toString()?.replace("\"", "") ?: "GUEST"
         } catch (e: Exception) {
-            // Default role if record not found or other error
-            "Kasir"
+            
+            "GUEST"
+
         }
     }
 }
