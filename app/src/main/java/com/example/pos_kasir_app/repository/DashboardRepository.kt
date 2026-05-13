@@ -33,8 +33,13 @@ class DashboardRepository {
     }
 
     suspend fun getRole(): String {
-        return supabase.postgrest.from("user")
-            .select { filter { eq("id", supabase.auth.currentUserOrNull()?.id ?: "") } }
-            .decodeSingle<Map<String, String>>()["role"] ?: "User"
+        return try {
+            supabase.postgrest.from("user")
+                .select { filter { eq("user_id", supabase.auth.currentUserOrNull()?.id ?: "") } }
+                .decodeSingle<Map<String, String>>()["role"] ?: "User"
+        } catch (e: Exception) {
+            // Default role if record not found or other error
+            "Kasir"
+        }
     }
 }
