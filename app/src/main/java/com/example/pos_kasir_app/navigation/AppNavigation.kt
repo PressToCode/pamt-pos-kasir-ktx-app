@@ -79,7 +79,6 @@ fun MainNavigation(
     val phone = authViewModel.phone.collectAsStateWithLifecycle()
     val password = authViewModel.password.collectAsStateWithLifecycle()
     val uiState = authViewModel.uiState.collectAsStateWithLifecycle()
-    val currentUser = authViewModel.currentUser.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.value) {
         if (uiState.value is AuthUiState.Success) {
@@ -135,53 +134,18 @@ fun MainNavigation(
         }
 
         entry<Screen.NewDashboard> { _ ->
-            currentUser.value?.let { profile ->
-                val dashboardViewModel: DashboardViewModel  = viewModel()
-                val dashboardUiState = dashboardViewModel.uiState.collectAsStateWithLifecycle()
-
-                when (dashboardUiState.value) {
-                    is DashboardUiState.Success -> {
-                        dashboardViewModel.greetingState.value?.let { motdGreeting ->
-                            NewDashboardScreen(
-                                userProfile = profile,
-                                motdGreeting = motdGreeting,
-                                role = dashboardViewModel.roleState.value,
-                                onLogoutClick = {
-                                    authViewModel.logout()
-                                    navigator.navigate(Screen.Login)
-                                },
-                                onKasClick = {
-                                    navigator.navigate(Screen.Kas)
-                                },
-                                onProfileClick = {
-                                    navigator.navigate(Screen.Profile)
-                                }
-                            )
-                        }
-                    }
-                    is DashboardUiState.Error -> {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            val message = (dashboardUiState.value as DashboardUiState.Error).message
-                            Text(text = message)
-                        }
-                    }
-                    else -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    }
+            NewDashboardScreen(
+                onLogoutClick = {
+                    authViewModel.logout()
+                    navigator.navigate(Screen.Login)
+                },
+                onKasClick = {
+                    navigator.navigate(Screen.Kas)
+                },
+                onProfileClick = {
+                    navigator.navigate(Screen.Profile)
                 }
-            } ?: run {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
+            )
         }
 
         entry<Screen.Kas> { _ ->

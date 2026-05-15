@@ -9,14 +9,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.automirrored.outlined.Message
-import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,8 +26,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.pos_kasir_app.model.User
 import com.example.pos_kasir_app.repository.Motd
-import com.example.pos_kasir_app.viewmodel.UserProfile
+import com.example.pos_kasir_app.viewmodel.DashboardUiState
+import com.example.pos_kasir_app.viewmodel.DashboardViewModel
 
 
 // Define Brand Colors
@@ -41,20 +44,20 @@ val GrayButton = Color(0xFF5B5B5B)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun NewDashboardPreview() {
-    NewDashboardScreen(
+    NewDashboardScreenContent(
         userProfile = remember {
-            UserProfile(
-                fullName = "Wedanta",
-                email = "Test@Test.Test",
-                phone = "1234"
+            User(
+                userId = "ini-uuid-user",
+                namaUser = "Wedanta",
+                role = "Kasir",
+                isActive = true
             )
         },
-        onLogoutClick = { },
         motdGreeting = Motd(
             greetingMessage = "Good Morning!",
             icon = Icons.Outlined.WbSunny
         ),
-        role = "Kasir",
+        onLogoutClick = {},
         onKasClick = {},
         onProfileClick = {}
     )
@@ -62,10 +65,115 @@ fun NewDashboardPreview() {
 
 @Composable
 fun NewDashboardScreen(
-    userProfile: UserProfile,
     onLogoutClick: () -> Unit,
+    onKasClick: () -> Unit,
+    onProfileClick: () -> Unit,
+    viewModel: DashboardViewModel = viewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val greetingState by viewModel.greetingState.collectAsStateWithLifecycle()
+    val profileState by viewModel.profileState.collectAsStateWithLifecycle()
+
+    when (uiState) {
+        is DashboardUiState.Idle, DashboardUiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(LightGrayBg),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(color = OrangeBrand)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Memuat dashboard...",
+                        color = Color(0xFF9E9E9E),
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        }
+        is DashboardUiState.Error -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(LightGrayBg),
+                contentAlignment = Alignment.Center
+            ) {
+                Surface(
+                    color = Color.White,
+                    shape = RoundedCornerShape(20.dp),
+                    shadowElevation = 2.dp,
+                    modifier = Modifier.padding(32.dp)
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ErrorOutline,
+                            contentDescription = null,
+                            tint = Color(0xFFFF5252),
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Gagal Memuat Dashboard",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        val message = (uiState as DashboardUiState.Error).message
+                        Text(
+                            text = message,
+                            color = Color(0xFF9E9E9E),
+                            fontSize = 14.sp
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Button(
+                            onClick = { 
+                                viewModel.fetchProfile()
+                                viewModel.refreshDashboard()
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = OrangeBrand
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Refresh,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Coba Lagi")
+                        }
+                    }
+                }
+            }
+        }
+        is DashboardUiState.Success -> {
+            greetingState?.let { greeting ->
+                profileState?.let { profile ->
+                    NewDashboardScreenContent(
+                        userProfile = profile,
+                        motdGreeting = greeting,
+                        onLogoutClick = onLogoutClick,
+                        onKasClick = onKasClick,
+                        onProfileClick = onProfileClick,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NewDashboardScreenContent(
+    userProfile: User,
     motdGreeting: Motd,
-    role: String,
+    onLogoutClick: () -> Unit,
     onKasClick: () -> Unit,
     onProfileClick: () -> Unit
 ) {
@@ -83,20 +191,19 @@ fun NewDashboardScreen(
             TopSection(
                 userProfile = userProfile,
                 motdGreeting = motdGreeting,
-                role = role,
                 onLogoutClick = onLogoutClick,
                 onProfileClick = onProfileClick
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            DashboardMenu(role = role, onKasClick = onKasClick)
+            DashboardMenu(role = userProfile.role, onKasClick = onKasClick)
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLogoutClick: () -> Unit, onProfileClick: () -> Unit) {
+fun TopSection(userProfile: User, motdGreeting: Motd, onLogoutClick: () -> Unit, onProfileClick: () -> Unit) {
     Surface(
         color = DarkBackground,
         shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
@@ -113,7 +220,7 @@ fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLog
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = role.uppercase(),
+                    text = userProfile.role.uppercase(),
                     color = Color.White,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
@@ -165,7 +272,7 @@ fun TopSection(userProfile: UserProfile, motdGreeting: Motd, role: String, onLog
                 Column {
                     Text(text = motdGreeting.greetingMessage, color = Color.LightGray, fontSize = 14.sp)
                     Text(
-                        text = userProfile.fullName,
+                        text = userProfile.namaUser,
                         color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold

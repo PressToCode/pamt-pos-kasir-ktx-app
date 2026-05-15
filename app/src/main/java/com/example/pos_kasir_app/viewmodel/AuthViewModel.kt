@@ -9,11 +9,6 @@ import kotlinx.coroutines.launch
 import io.github.jan.supabase.auth.status.SessionStatus
 import kotlinx.serialization.json.jsonPrimitive
 
-data class UserProfile(
-    val fullName: String,
-    val email: String,
-    val phone: String
-)
 class AuthViewModel : ViewModel() {
     private val repository = AuthRepository()
 
@@ -35,10 +30,6 @@ class AuthViewModel : ViewModel() {
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password
 
-    // For User Profile
-    private val _currentUser = MutableStateFlow<UserProfile?>(null)
-    val currentUser: StateFlow<UserProfile?> = _currentUser
-
     init {
         observeAuthStatus()
     }
@@ -47,29 +38,12 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             repository.sessionStatus.collect {
                 status -> _authCheckState.value = when (status) {
-                    is SessionStatus.Authenticated -> {
-                        val user = status.session.user
-                        val metadata = user?.userMetadata
-
-                        _currentUser.value = UserProfile(
-                            email = user?.email ?: "",
-                            fullName = metadata?.get("full_name")?.jsonPrimitive?.content ?: "",
-                            phone = metadata?.get("phone")?.jsonPrimitive?.content ?: ""
-                        )
-
-                        AuthCheckState.Authenticated
-                    }
-                    is SessionStatus.NotAuthenticated -> {
-                        _currentUser.value = null
-                        AuthCheckState.NotAuthenticated
-                    }
+                    is SessionStatus.Authenticated -> AuthCheckState.Authenticated
+                    is SessionStatus.NotAuthenticated -> AuthCheckState.NotAuthenticated
                     is SessionStatus.Initializing -> AuthCheckState.Checking
                     is SessionStatus.RefreshFailure -> {
                         if (repository.isLoggedIn()) AuthCheckState.Authenticated
-                        else {
-                            _currentUser.value = null
-                            AuthCheckState.NotAuthenticated
-                        }
+                        else AuthCheckState.NotAuthenticated
                     }
                 }
             }
@@ -135,8 +109,6 @@ class AuthViewModel : ViewModel() {
     fun logout() {
         viewModelScope.launch {
             repository.logout()
-            _currentUser.value = null
-
             _uiState.value = AuthUiState.Idle
         }
     }

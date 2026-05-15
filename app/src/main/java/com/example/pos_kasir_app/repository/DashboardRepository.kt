@@ -20,7 +20,6 @@ data class Motd(
 )
 
 class DashboardRepository {
-    private val supabase = SupabaseClientProvider.supabaseClient
     fun getTimeOfDayMessage(): Motd {
         val now = Clock.System.now()
         val hour = now.toLocalDateTime(TimeZone.currentSystemDefault()).hour
@@ -30,25 +29,6 @@ class DashboardRepository {
             in 12..16 -> Motd(greetingMessage = "Good Afternoon!", icon = Icons.Outlined.WbCloudy)
             in 17..20 -> Motd(greetingMessage = "Good Evening!", icon = Icons.Outlined.WbShade)
             else -> Motd(greetingMessage = "Good Night!", icon = Icons.Outlined.Nightlight)
-        }
-    }
-
-    suspend fun getRole(): String {
-
-        // Ensure auth is initialized to retrieve the session and user
-        supabase.auth.awaitInitialization()
-        val userId = supabase.auth.currentUserOrNull()?.id ?: return "GUEST"
-
-        return try {
-            val result = supabase.postgrest.from("user")
-                .select { filter { eq("user_id", userId) } }
-                .decodeSingleOrNull<Map<String, kotlinx.serialization.json.JsonElement>>()
-            
-            result?.get("role")?.toString()?.replace("\"", "") ?: "GUEST"
-        } catch (e: Exception) {
-            
-            "GUEST"
-
         }
     }
 }
