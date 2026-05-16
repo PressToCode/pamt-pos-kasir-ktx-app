@@ -33,12 +33,10 @@ import com.example.pos_kasir_app.model.User
 import com.example.pos_kasir_app.viewmodel.ProfileUiState
 import com.example.pos_kasir_app.viewmodel.ProfileViewModel
 
-// Extra accent colors for Profile screen
-private val GreenActive = Color(0xFF4CAF50)
-private val RedInactive = Color(0xFFFF5252)
+// Local colors (aligned to black + orange design system)
 private val SoftWhite = Color(0xFFF8F9FB)
 private val SubtleGray = Color(0xFF9E9E9E)
-private val CardWhite = Color.White
+private val OrangeSubtle = Color(0xFFFFF3E0)
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -101,7 +99,7 @@ fun ProfileScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Surface(
-                    color = CardWhite,
+                    color = Color.White,
                     shape = RoundedCornerShape(20.dp),
                     shadowElevation = 2.dp,
                     modifier = Modifier.padding(32.dp)
@@ -113,7 +111,7 @@ fun ProfileScreen(
                         Icon(
                             imageVector = Icons.Outlined.ErrorOutline,
                             contentDescription = null,
-                            tint = RedInactive,
+                            tint = OrangeBrand,
                             modifier = Modifier.size(48.dp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -221,7 +219,7 @@ fun ProfileScreenContent(
                 exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
             ) {
                 Surface(
-                    color = GreenActive.copy(alpha = 0.08f),
+                    color = OrangeBrand.copy(alpha = 0.08f),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -235,12 +233,12 @@ fun ProfileScreenContent(
                         Icon(
                             imageVector = Icons.Filled.CheckCircle,
                             contentDescription = null,
-                            tint = GreenActive,
+                            tint = OrangeBrand,
                             modifier = Modifier.size(22.dp)
                         )
                         Text(
                             text = "Profil berhasil diperbarui!",
-                            color = Color(0xFF2E7D32),
+                            color = DarkBackground,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -437,7 +435,7 @@ fun ProfileHeader(
                                 .padding(2.dp)
                                 .clip(CircleShape)
                                 .background(
-                                    if (user.isActive) GreenActive else RedInactive
+                                    if (user.isActive) OrangeBrand else SubtleGray
                                 )
                         )
                     }
@@ -461,7 +459,7 @@ fun ProfileHeader(
                     ) {
                         // Role badge
                         Surface(
-                            color = BlueButton.copy(alpha = 0.85f),
+                            color = OrangeBrand,
                             shape = RoundedCornerShape(20.dp)
                         ) {
                             Row(
@@ -486,8 +484,8 @@ fun ProfileHeader(
 
                         // Status badge
                         Surface(
-                            color = if (user.isActive) GreenActive.copy(alpha = 0.15f)
-                            else RedInactive.copy(alpha = 0.15f),
+                            color = if (user.isActive) OrangeBrand.copy(alpha = 0.15f)
+                            else Color.White.copy(alpha = 0.1f),
                             shape = RoundedCornerShape(20.dp)
                         ) {
                             Row(
@@ -500,12 +498,12 @@ fun ProfileHeader(
                                         .size(6.dp)
                                         .clip(CircleShape)
                                         .background(
-                                            if (user.isActive) GreenActive else RedInactive
+                                            if (user.isActive) OrangeBrand else SubtleGray
                                         )
                                 )
                                 Text(
                                     text = if (user.isActive) "Aktif" else "Nonaktif",
-                                    color = if (user.isActive) GreenActive else RedInactive,
+                                    color = if (user.isActive) OrangeBrand else Color.LightGray,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -531,7 +529,7 @@ fun ProfileFormCard(
     isUpdating: Boolean
 ) {
     Surface(
-        color = CardWhite,
+        color = Color.White,
         shape = RoundedCornerShape(20.dp),
         shadowElevation = 1.dp,
         modifier = Modifier
@@ -562,7 +560,7 @@ fun ProfileFormCard(
                         text = "Edit Profil",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A1A2E)
+                        color = DarkBackground
                     )
                     Text(
                         text = "Ubah nama dan nomor telepon Anda",
@@ -654,7 +652,7 @@ fun ProfileFormCard(
 @Composable
 fun AccountInfoCard(user: User) {
     Surface(
-        color = CardWhite,
+        color = Color.White,
         shape = RoundedCornerShape(20.dp),
         shadowElevation = 1.dp,
         modifier = Modifier
@@ -668,13 +666,13 @@ fun AccountInfoCard(user: User) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Surface(
-                    color = BlueButton.copy(alpha = 0.1f),
+                    color = DarkBackground.copy(alpha = 0.08f),
                     shape = RoundedCornerShape(10.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Info,
                         contentDescription = null,
-                        tint = BlueButton,
+                        tint = DarkBackground,
                         modifier = Modifier
                             .padding(8.dp)
                             .size(20.dp)
@@ -685,7 +683,7 @@ fun AccountInfoCard(user: User) {
                         text = "Informasi Akun",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A1A2E)
+                        color = DarkBackground
                     )
                     Text(
                         text = "Detail akun dari database",
@@ -702,7 +700,7 @@ fun AccountInfoCard(user: User) {
                 icon = Icons.Outlined.Fingerprint,
                 label = "User ID",
                 value = user.userId.take(8) + "..." + user.userId.takeLast(4),
-                iconBgColor = Color(0xFFFFF3E0),
+                iconBgColor = OrangeSubtle,
                 iconTint = OrangeBrand
             )
 
@@ -712,8 +710,8 @@ fun AccountInfoCard(user: User) {
                 icon = Icons.Outlined.Shield,
                 label = "Role",
                 value = user.role.replaceFirstChar { it.uppercase() },
-                iconBgColor = Color(0xFFE3F2FD),
-                iconTint = BlueButton
+                iconBgColor = OrangeSubtle,
+                iconTint = OrangeBrand
             )
 
             InfoDivider()
@@ -722,9 +720,9 @@ fun AccountInfoCard(user: User) {
                 icon = Icons.Outlined.ToggleOn,
                 label = "Status Akun",
                 value = if (user.isActive) "Aktif" else "Tidak Aktif",
-                valueColor = if (user.isActive) GreenActive else RedInactive,
-                iconBgColor = if (user.isActive) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
-                iconTint = if (user.isActive) GreenActive else RedInactive
+                valueColor = if (user.isActive) OrangeBrand else SubtleGray,
+                iconBgColor = OrangeSubtle,
+                iconTint = OrangeBrand
             )
 
             InfoDivider()
@@ -733,8 +731,8 @@ fun AccountInfoCard(user: User) {
                 icon = Icons.Outlined.CalendarToday,
                 label = "Bergabung Sejak",
                 value = formatCreatedAt(user.createdAt),
-                iconBgColor = Color(0xFFF3E5F5),
-                iconTint = Color(0xFF7B1FA2)
+                iconBgColor = OrangeSubtle,
+                iconTint = OrangeBrand
             )
         }
     }
@@ -745,7 +743,7 @@ private fun InfoItem(
     icon: ImageVector,
     label: String,
     value: String,
-    valueColor: Color = Color(0xFF1A1A2E),
+    valueColor: Color = DarkBackground,
     iconBgColor: Color = LightGrayBg,
     iconTint: Color = GrayButton
 ) {
