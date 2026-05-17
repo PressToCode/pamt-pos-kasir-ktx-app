@@ -45,7 +45,11 @@ class KasRepository {
     suspend fun deleteKas(kasId: String) {
         withContext(Dispatchers.IO) {
             supabase.postgrest["kas"]
-                .delete {
+                .update(
+                    {
+                        set("is_active", false)
+                    }
+                ) {
                     filter { eq("kas_id", kasId) }
                 }
         }

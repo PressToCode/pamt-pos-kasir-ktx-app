@@ -38,6 +38,8 @@ private val SoftWhite = Color(0xFFF8F9FB)
 private val MutedDark = Color(0xFF3A3A3A)
 private val OrangeLight = Color(0xFFFF8A65)
 
+enum class KasFilter { ACTIVE, INACTIVE, ALL }
+
 @Composable
 fun KasScreen(
     onNavigateBack: () -> Unit,
@@ -47,6 +49,7 @@ fun KasScreen(
     var showAddEditDialog by remember { mutableStateOf(false) }
     var selectedKasToEdit by remember { mutableStateOf<Kas?>(null) }
     var showDeleteConfirmDialog by remember { mutableStateOf<Kas?>(null) }
+    var currentFilter by remember { mutableStateOf(KasFilter.ACTIVE) }
 
     Scaffold(
         containerColor = LightGrayBg,
@@ -72,6 +75,14 @@ fun KasScreen(
         ) {
             // ═══ DARK HEADER ═══
             KasHeader(onBackClick = onNavigateBack, kasList = (uiState as? KasUiState.Success)?.kasList)
+
+            // ═══ FILTER SECTION ═══
+            if (uiState is KasUiState.Success) {
+                FilterSection(
+                    selectedFilter = currentFilter,
+                    onFilterSelected = { currentFilter = it }
+                )
+            }
 
             // ═══ CONTENT ═══
             when (uiState) {
@@ -116,13 +127,24 @@ fun KasScreen(
                 }
 
                 is KasUiState.Success -> {
-                    val kasList = (uiState as KasUiState.Success).kasList
-                    if (kasList.isEmpty()) {
+                    val fullList = (uiState as KasUiState.Success).kasList
+                    val filteredList = when (currentFilter) {
+                        KasFilter.ACTIVE -> fullList.filter { it.isActive }
+                        KasFilter.INACTIVE -> fullList.filter { !it.isActive }
+                        KasFilter.ALL -> fullList
+                    }
+
+                    if (filteredList.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Outlined.Inbox, null, tint = SubtleGray, modifier = Modifier.size(56.dp))
                                 Spacer(modifier = Modifier.height(12.dp))
-                                Text("Belum Ada Data Kas", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1A2E))
+                                val emptyMessage = when(currentFilter) {
+                                    KasFilter.ACTIVE -> "Belum Ada Kas Aktif"
+                                    KasFilter.INACTIVE -> "Belum Ada Kas Nonaktif"
+                                    KasFilter.ALL -> "Belum Ada Data Kas"
+                                }
+                                Text(emptyMessage, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1A2E))
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text("Tekan + untuk menambah kas baru", color = SubtleGray, fontSize = 14.sp)
                             }
@@ -133,7 +155,7 @@ fun KasScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            items(kasList) { kas ->
+                            items(filteredList) { kas ->
                                 KasCard(
                                     kas = kas,
                                     onEditClick = { selectedKasToEdit = kas; showAddEditDialog = true },
@@ -481,4 +503,54 @@ private fun KasFormDialog(
             }
         }
     )
+}
+
+// ═══════════════════════════════════════════════════
+// FILTER SECTION
+// ═══════════════════════════════════════════════════
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FilterSection(
+    selectedFilter: KasFilter,
+    onFilterSelected: (KasFilter) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        listOf(KasFilter.ACTIVE, KasFilter.INACTIVE, KasFilter.ALL).forEach { filter ->
+            val isSelected = selectedFilter == filter
+            FilterChip(
+                selected = isSelected,
+                onClick = { onFilterSelected(filter) },
+                label = {
+                    Text(
+                        when (filter) {
+                            KasFilter.ACTIVE -> "Aktif"
+                            KasFilter.INACTIVE -> "Nonaktif"
+                            KasFilter.ALL -> "Semua"
+                        }
+                    )
+                },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = OrangeBrand,
+                    selectedLabelColor = Color.White,
+                    containerColor = Color.White,
+                    labelColor = MutedDark
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = true,
+                    selected = isSelected,
+                    borderColor = Color(0xFFE8E8E8),
+                    selectedBorderColor = OrangeBrand,
+                    borderWidth = 1.dp,
+                    selectedBorderWidth = 1.dp
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+        }
+    }
 }
